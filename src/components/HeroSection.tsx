@@ -13,9 +13,12 @@ import {
   Zap, 
   Layers, 
   Terminal, 
-  Play
+  Play,
+  Film
 } from 'lucide-react';
 import { SITE_CONFIG } from '../config/site';
+
+import NanoBananaFlowVideoShowcase from './NanoBananaFlowVideoShowcase';
 
 export default function HeroSection() {
   const [filled, setFilled] = useState(false);
@@ -51,7 +54,7 @@ export default function HeroSection() {
           <h1 className="text-3xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-slate-900 leading-[1.15]">
             Fill Forms in Seconds with{' '}
             <span className="bg-gradient-to-r from-indigo-600 via-purple-600 to-blue-600 bg-clip-text text-transparent">
-              Local RAG & AI Precision
+              Local RAG & Precision AI
             </span>
           </h1>
 
@@ -103,166 +106,9 @@ export default function HeroSection() {
           </div>
         </div>
 
-        {/* Dynamic Interactive Hero Mockup Card */}
-        <div className="mt-14 max-w-4xl mx-auto">
-          <div className="relative p-2 sm:p-3 rounded-3xl bg-gradient-to-b from-slate-200/80 via-white to-slate-100 border border-slate-200 shadow-2xl">
-            {/* Window Topbar */}
-            <div className="bg-slate-900 rounded-2xl p-4 sm:p-6 text-white shadow-inner">
-              {/* Browser simulated bar */}
-              <div className="flex items-center justify-between pb-4 mb-4 border-b border-slate-800">
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-rose-500/80"></div>
-                  <div className="w-3 h-3 rounded-full bg-amber-500/80"></div>
-                  <div className="w-3 h-3 rounded-full bg-emerald-500/80"></div>
-                  <span className="ml-2 text-xs font-mono text-slate-400 hidden sm:inline">
-                    docs.google.com/forms/d/e/1FAIpQLSc.../viewform
-                  </span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-950/80 text-emerald-400 border border-emerald-800 text-xs font-medium">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                    Google Form Ready
-                  </span>
-                </div>
-              </div>
-
-              {/* Grid content: simulated Google Form on left, Floating Extension Widget on right */}
-              <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
-                {/* Simulated Google Form inputs */}
-                <div className="md:col-span-7 space-y-4 bg-slate-950/60 p-4 rounded-xl border border-slate-800/80">
-                  <div className="border-b border-slate-800 pb-2">
-                    <h3 className="text-sm font-semibold text-slate-200">Senior AI / Full Stack Engineer Application</h3>
-                    <p className="text-xs text-slate-400 mt-0.5">Please provide your technical background and expected compensation.</p>
-                  </div>
-
-                  <div className="space-y-3 text-xs">
-                    <div>
-                      <label className="text-slate-400 block mb-1 font-medium">Candidate Full Name *</label>
-                      <input
-                        type="text"
-                        readOnly
-                        value={filled ? 'Alex Morgan' : ''}
-                        placeholder={filled ? '' : 'Waiting for autofill...'}
-                        className={`w-full px-3 py-2 rounded-lg bg-slate-900 border text-slate-100 transition-all ${
-                          filled ? 'border-emerald-500 bg-emerald-950/20 font-medium' : 'border-slate-800 text-slate-500'
-                        }`}
-                      />
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-2">
-                      <div>
-                        <label className="text-slate-400 block mb-1 font-medium">Notice Period (In days) *</label>
-                        <input
-                          type="text"
-                          readOnly
-                          value={filled ? '0' : ''}
-                          placeholder={filled ? '' : 'e.g. 0'}
-                          className={`w-full px-3 py-2 rounded-lg bg-slate-900 border text-slate-100 transition-all ${
-                            filled ? 'border-emerald-500 bg-emerald-950/20 font-mono font-medium' : 'border-slate-800 text-slate-500'
-                          }`}
-                        />
-                        <span className="text-[10px] text-slate-500 mt-0.5 block">Numeric day formatting</span>
-                      </div>
-                      <div>
-                        <label className="text-slate-400 block mb-1 font-medium">Expected CTC (in LPA) *</label>
-                        <input
-                          type="text"
-                          readOnly
-                          value={filled ? '16' : ''}
-                          placeholder={filled ? '' : 'e.g. 16'}
-                          className={`w-full px-3 py-2 rounded-lg bg-slate-900 border text-slate-100 transition-all ${
-                            filled ? 'border-emerald-500 bg-emerald-950/20 font-mono font-medium' : 'border-slate-800 text-slate-500'
-                          }`}
-                        />
-                        <span className="text-[10px] text-slate-500 mt-0.5 block">LPA-bounded numeric value</span>
-                      </div>
-                    </div>
-
-                    <div>
-                      <label className="text-slate-400 block mb-1 font-medium">Technical Deep Dive (RAG Synthesized) *</label>
-                      <div
-                        className={`w-full p-2.5 rounded-lg bg-slate-900 border min-h-[64px] text-slate-200 text-[11px] leading-relaxed transition-all ${
-                          filled ? 'border-emerald-500 bg-emerald-950/20' : 'border-slate-800 text-slate-500'
-                        }`}
-                      >
-                        {filled
-                          ? 'Diagnosed an Ollama streaming token buffer leak via Web Crypto memory snapshots, dropping P99 latency by 64% without dropping tokens.'
-                          : 'RAG will synthesize factual answers from your uploaded Resume and GitHub READMEs...'}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Fillvyn Floating Assistant Dock Preview */}
-                <div className="md:col-span-5 bg-slate-900/95 p-4 rounded-2xl border border-indigo-500/30 shadow-xl space-y-3">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <div className="w-6 h-6 rounded-full bg-indigo-600 flex items-center justify-center">
-                        <Sparkles className="w-3.5 h-3.5 text-white" />
-                      </div>
-                      <span className="text-xs font-bold tracking-tight text-white">Fillvyn Assistant</span>
-                    </div>
-                    <span className="text-[10px] font-mono bg-slate-800 text-slate-300 px-2 py-0.5 rounded-full border border-slate-700">
-                      Alt + Shift + F
-                    </span>
-                  </div>
-
-                  {/* Profile Dropdown */}
-                  <div className="bg-slate-800/80 rounded-xl p-2 border border-slate-700">
-                    <div className="text-[10px] font-medium text-slate-400 mb-0.5">Active Profile</div>
-                    <div className="text-xs font-semibold text-slate-100 flex items-center justify-between">
-                      <span>Default Profile (Alex Morgan)</span>
-                      <span className="text-[10px] text-indigo-400 bg-indigo-950/60 px-1.5 py-0.5 rounded">Active</span>
-                    </div>
-                  </div>
-
-                  {/* LLM Engine Selection */}
-                  <div className="bg-slate-800/80 rounded-xl p-2 border border-slate-700">
-                    <div className="text-[10px] font-medium text-slate-400 mb-0.5">Model Engine</div>
-                    <div className="flex items-center gap-1.5 text-xs text-emerald-400 font-mono">
-                      <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
-                      <span>{activeModel}</span>
-                    </div>
-                  </div>
-
-                  {/* Interactive Button */}
-                  <button
-                    onClick={handleSimulateFill}
-                    className={`w-full py-2.5 px-4 rounded-full text-xs font-bold text-white transition-all flex items-center justify-center gap-2 shadow-md ${
-                      filled
-                        ? 'bg-emerald-600 hover:bg-emerald-700 shadow-emerald-600/30'
-                        : 'bg-indigo-600 hover:bg-indigo-700 shadow-indigo-600/30 animate-pulse'
-                    }`}
-                  >
-                    {filled ? (
-                      <>
-                        <CheckCircle2 className="w-4 h-4" />
-                        <span>Form Auto-Filled 100%</span>
-                      </>
-                    ) : (
-                      <>
-                        <Sparkles className="w-4 h-4" />
-                        <span>Click to Auto-Fill Form</span>
-                      </>
-                    )}
-                  </button>
-
-                  <div className="text-center">
-                    {filled ? (
-                      <button
-                        onClick={() => setFilled(false)}
-                        className="text-[10px] text-slate-400 hover:text-slate-200 underline"
-                      >
-                        Reset Demo
-                      </button>
-                    ) : (
-                      <p className="text-[10px] text-slate-400">Click the button above to test instantaneous DOM autofill</p>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+        {/* Dynamic Video Showcase in place of static mockup */}
+        <div className="mt-12 max-w-5xl mx-auto">
+          <NanoBananaFlowVideoShowcase autoPlay={true} />
         </div>
       </div>
     </section>
