@@ -46,9 +46,11 @@ async function ensureTablesExist() {
         feedback_text TEXT NOT NULL,
         nps_score INT,
         email VARCHAR(255),
+        image_url TEXT,
         status VARCHAR(32) NOT NULL DEFAULT 'new',
         created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
       );
+      ALTER TABLE fillvyn_feedbacks ADD COLUMN IF NOT EXISTS image_url TEXT;
       CREATE INDEX IF NOT EXISTS idx_feedbacks_created_at ON fillvyn_feedbacks(created_at DESC);
       CREATE INDEX IF NOT EXISTS idx_feedbacks_rating ON fillvyn_feedbacks(rating);
     `);
@@ -94,8 +96,8 @@ export class PostgresFeedbackRepository implements IFeedbackRepository {
     const pool = this.getPool();
     try {
       await pool.query(
-        `INSERT INTO fillvyn_feedbacks (id, rating, category, persona, feedback_text, nps_score, email, status, created_at)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
+        `INSERT INTO fillvyn_feedbacks (id, rating, category, persona, feedback_text, nps_score, email, image_url, status, created_at)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
         [
           id,
           feedback.rating,
@@ -104,6 +106,7 @@ export class PostgresFeedbackRepository implements IFeedbackRepository {
           feedback.feedbackText,
           feedback.npsScore ?? null,
           feedback.email ?? null,
+          feedback.imageUrl ?? null,
           status,
           timestamp,
         ]
@@ -163,6 +166,7 @@ export class PostgresFeedbackRepository implements IFeedbackRepository {
         feedbackText: row.feedback_text,
         npsScore: row.nps_score ?? undefined,
         email: row.email ?? undefined,
+        imageUrl: row.image_url ?? undefined,
         status: row.status,
         timestamp: new Date(row.created_at).toISOString(),
       }));
@@ -186,6 +190,7 @@ export class PostgresFeedbackRepository implements IFeedbackRepository {
         feedbackText: row.feedback_text,
         npsScore: row.nps_score ?? undefined,
         email: row.email ?? undefined,
+        imageUrl: row.image_url ?? undefined,
         status: row.status,
         timestamp: new Date(row.created_at).toISOString(),
       };
@@ -212,6 +217,7 @@ export class PostgresFeedbackRepository implements IFeedbackRepository {
         feedbackText: row.feedback_text,
         npsScore: row.nps_score ?? undefined,
         email: row.email ?? undefined,
+        imageUrl: row.image_url ?? undefined,
         status: row.status,
         timestamp: new Date(row.created_at).toISOString(),
       };

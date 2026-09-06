@@ -24,6 +24,9 @@ import {
   AlertCircle,
   FolderArchive,
   HelpCircle,
+  ImageIcon,
+  X,
+  ExternalLink,
 } from 'lucide-react';
 import { StoredFeedback, StoredContact, FeedbackSummaryKPIs } from '@/lib/storage/types';
 
@@ -33,6 +36,9 @@ export default function AdminDashboardPage() {
   const [authError, setAuthError] = useState<string>('');
   const [token, setToken] = useState<string>('');
   const [activeTab, setActiveTab] = useState<'feedback' | 'contact'>('feedback');
+
+  // Modal lightbox state for feedback image
+  const [activeImageModal, setActiveImageModal] = useState<{ url: string; title: string } | null>(null);
 
   // Feedback State
   const [feedbacks, setFeedbacks] = useState<StoredFeedback[]>([]);
@@ -785,6 +791,41 @@ export default function AdminDashboardPage() {
                           <span className="text-[11px] text-slate-400 italic">Anonymous User</span>
                         )}
                       </div>
+
+                      {/* Attached Screenshot / Image */}
+                      {item.imageUrl && (
+                        <div className="pt-2">
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setActiveImageModal({
+                                url: item.imageUrl!,
+                                title: `Screenshot Attachment (${item.id})`,
+                              })
+                            }
+                            className="group inline-flex items-center gap-3 p-2 pr-4 rounded-2xl bg-slate-50 hover:bg-indigo-50/60 border border-slate-200/90 hover:border-indigo-200 transition-all text-left"
+                          >
+                            <div className="relative w-12 h-12 rounded-xl overflow-hidden border border-slate-200 bg-white shrink-0 shadow-xs">
+                              {/* eslint-disable-next-line @next/next/no-img-element */}
+                              <img
+                                src={item.imageUrl}
+                                alt={`Attachment for feedback ${item.id}`}
+                                className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                              />
+                            </div>
+                            <div className="space-y-0.5">
+                              <div className="text-xs font-semibold text-slate-800 flex items-center gap-1.5">
+                                <ImageIcon className="w-3.5 h-3.5 text-indigo-600" />
+                                <span>Attached Screenshot</span>
+                              </div>
+                              <span className="text-[10px] text-indigo-600 font-medium group-hover:underline flex items-center gap-1">
+                                <span>View full image</span>
+                                <ExternalLink className="w-2.5 h-2.5" />
+                              </span>
+                            </div>
+                          </button>
+                        </div>
+                      )}
                     </div>
 
                     {/* Footer of Card: Status & Actions */}
@@ -959,6 +1000,55 @@ export default function AdminDashboardPage() {
         )}
 
       </div>
+
+      {/* Lightbox Modal for Attached Image */}
+      {activeImageModal && (
+        <div
+          className="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6"
+          onClick={() => setActiveImageModal(null)}
+        >
+          <div
+            className="bg-white rounded-3xl p-5 sm:p-6 max-w-4xl w-full max-h-[92vh] overflow-hidden flex flex-col shadow-2xl border border-slate-200"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between pb-4 mb-4 border-b border-slate-100">
+              <div className="flex items-center gap-2">
+                <ImageIcon className="w-5 h-5 text-indigo-600" />
+                <h3 className="text-sm sm:text-base font-bold text-slate-900">
+                  {activeImageModal.title}
+                </h3>
+              </div>
+              <div className="flex items-center gap-2">
+                <a
+                  href={activeImageModal.url}
+                  download="feedback-attachment"
+                  className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 border border-slate-200 transition-all active:scale-95"
+                >
+                  <Download className="w-3.5 h-3.5" />
+                  <span>Download</span>
+                </a>
+                <button
+                  type="button"
+                  onClick={() => setActiveImageModal(null)}
+                  className="p-1.5 rounded-full hover:bg-slate-100 text-slate-500 hover:text-slate-800 transition-colors"
+                  title="Close viewer"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+
+            <div className="relative w-full flex-1 overflow-auto rounded-2xl bg-slate-50 border border-slate-200/80 p-3 flex items-center justify-center min-h-[300px]">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={activeImageModal.url}
+                alt={activeImageModal.title}
+                className="max-w-full max-h-[68vh] object-contain rounded-xl shadow-xs"
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }

@@ -63,6 +63,17 @@ export class FeedbackValidator implements IFeedbackValidator {
       errors.email = 'Please provide a valid email address or leave it empty.';
     }
 
+    if (payload.imageUrl && payload.imageUrl.trim().length > 0) {
+      const trimmedUrl = payload.imageUrl.trim();
+      const isDataUri = /^data:image\/(png|jpeg|jpg|webp|gif);base64,[A-Za-z0-9+/=]+$/i.test(trimmedUrl);
+      const isHttpUrl = /^https?:\/\/.+/i.test(trimmedUrl);
+      if (!isDataUri && !isHttpUrl) {
+        errors.imageUrl = 'Attached image must be a valid PNG, JPEG, WebP, or GIF image.';
+      } else if (trimmedUrl.length > 4.5 * 1024 * 1024) {
+        errors.imageUrl = 'Attached image size must not exceed 3MB.';
+      }
+    }
+
     return {
       isValid: Object.keys(errors).length === 0,
       errors,
@@ -86,6 +97,7 @@ export class FeedbackSanitizer implements IFeedbackSanitizer {
       feedbackText: this.stripHtml(payload.feedbackText),
       npsScore: payload.npsScore !== undefined ? Math.min(10, Math.max(0, Math.round(payload.npsScore))) : undefined,
       email: payload.email ? this.stripHtml(payload.email).toLowerCase() : undefined,
+      imageUrl: payload.imageUrl && payload.imageUrl.trim().length > 0 ? payload.imageUrl.trim() : undefined,
     };
   }
 }

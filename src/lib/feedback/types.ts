@@ -24,6 +24,7 @@ export interface FeedbackPayload {
   feedbackText: string;
   npsScore?: number; // 0 to 10
   email?: string;
+  imageUrl?: string; // Optional attached screenshot or image (data URL or URL)
 }
 
 export interface FeedbackValidationResult {

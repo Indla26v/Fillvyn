@@ -16,6 +16,10 @@ import {
   Sliders,
   UserCheck,
   Award,
+  UploadCloud,
+  ImageIcon,
+  X,
+  FileImage,
 } from 'lucide-react';
 import { FeedbackCategory, UserPersona, FeedbackPayload } from '@/lib/feedback/types';
 
@@ -55,6 +59,58 @@ export default function FeedbackPage() {
     message: string;
   } | null>(null);
 
+  // Optional image attachment state
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [isDragging, setIsDragging] = useState<boolean>(false);
+
+  const handleImageChange = (file: File | null) => {
+    if (!file) return;
+
+    const validTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp', 'image/gif'];
+    if (!validTypes.includes(file.type)) {
+      setErrors((prev) => ({
+        ...prev,
+        imageUrl: 'Please select a valid image file (PNG, JPEG, WebP, or GIF).',
+      }));
+      return;
+    }
+
+    if (file.size > 3 * 1024 * 1024) {
+      setErrors((prev) => ({
+        ...prev,
+        imageUrl: 'Attached image must be smaller than 3MB.',
+      }));
+      return;
+    }
+
+    setErrors((prev) => {
+      const next = { ...prev };
+      delete next.imageUrl;
+      return next;
+    });
+
+    setImageFile(file);
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const result = reader.result as string;
+      setImagePreview(result);
+      setFormData((prev) => ({ ...prev, imageUrl: result }));
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleRemoveImage = () => {
+    setImageFile(null);
+    setImagePreview(null);
+    setFormData((prev) => ({ ...prev, imageUrl: undefined }));
+    setErrors((prev) => {
+      const next = { ...prev };
+      delete next.imageUrl;
+      return next;
+    });
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -74,6 +130,8 @@ export default function FeedbackPage() {
           feedbackId: data.feedbackId || 'FDB-CONFIRMED',
           message: data.message,
         });
+        setImageFile(null);
+        setImagePreview(null);
         setFormData({
           rating: 5,
           category: 'feature_request',
@@ -81,6 +139,7 @@ export default function FeedbackPage() {
           feedbackText: '',
           npsScore: 10,
           email: '',
+          imageUrl: undefined,
         });
       } else if (data.errors) {
         setErrors(data.errors);
@@ -374,6 +433,116 @@ export default function FeedbackPage() {
                   />
                   {errors.email && (
                     <p className="text-[11px] text-rose-600">{errors.email}</p>
+                  )}
+                </div>
+
+                {/* 7. Optional Screenshot / Image Upload */}
+                <div className="space-y-2">
+                  <label className="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
+                    <ImageIcon className="w-3.5 h-3.5 text-indigo-600" />
+                    <span>7. Attach Screenshot or Image <span className="text-slate-400 font-normal">(Optional)</span></span>
+                  </label>
+
+                  {imagePreview ? (
+                    <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/90 flex flex-col sm:flex-row items-center justify-between gap-4">
+                      <div className="flex items-center gap-3.5 w-full sm:w-auto">
+                        <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-2xl overflow-hidden border border-slate-200 bg-white shrink-0 shadow-xs">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src={imagePreview}
+                            alt="Uploaded feedback preview"
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className="text-xs font-bold text-slate-800 line-clamp-1 max-w-[220px]">
+                              {imageFile ? imageFile.name : 'Attached Screenshot'}
+                            </span>
+                            <span className="px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-100 text-emerald-800 border border-emerald-200">
+                              Attached
+                            </span>
+                          </div>
+                          <p className="text-[11px] text-slate-500 font-mono">
+                            {imageFile ? `${(imageFile.size / (1024 * 1024)).toFixed(2)} MB` : 'Custom image'}
+                          </p>
+                          <p className="text-[10px] text-slate-400">
+                            Included with your submission to provide visual context.
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
+                        <button
+                          type="button"
+                          onClick={handleRemoveImage}
+                          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-semibold text-rose-700 bg-rose-50 hover:bg-rose-100 active:scale-95 border border-rose-200 shadow-xs transition-all"
+                        >
+                          <X className="w-3.5 h-3.5" />
+                          <span>Remove Image</span>
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div
+                      onDragOver={(e) => {
+                        e.preventDefault();
+                        setIsDragging(true);
+                      }}
+                      onDragLeave={() => setIsDragging(false)}
+                      onDrop={(e) => {
+                        e.preventDefault();
+                        setIsDragging(false);
+                        if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+                          handleImageChange(e.dataTransfer.files[0]);
+                        }
+                      }}
+                      className={`relative p-6 sm:p-8 rounded-2xl border-2 border-dashed transition-all text-center flex flex-col items-center justify-center gap-2.5 ${
+                        isDragging
+                          ? 'border-indigo-500 bg-indigo-50/50 scale-[1.01]'
+                          : 'border-slate-300 hover:border-indigo-400 bg-slate-50/60 hover:bg-indigo-50/20'
+                      }`}
+                    >
+                      <input
+                        type="file"
+                        id="feedback-image-input"
+                        accept="image/png,image/jpeg,image/jpg,image/webp,image/gif"
+                        className="sr-only"
+                        onChange={(e) => {
+                          if (e.target.files && e.target.files[0]) {
+                            handleImageChange(e.target.files[0]);
+                          }
+                        }}
+                      />
+
+                      <div className="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 border border-indigo-100 flex items-center justify-center shadow-xs">
+                        <UploadCloud className="w-6 h-6" />
+                      </div>
+
+                      <div className="space-y-1">
+                        <p className="text-xs font-bold text-slate-800">
+                          Drag and drop your screenshot here, or browse files
+                        </p>
+                        <p className="text-[11px] text-slate-500">
+                          Supports PNG, JPG, WebP, or GIF up to 3MB
+                        </p>
+                      </div>
+
+                      <label
+                        htmlFor="feedback-image-input"
+                        className="cursor-pointer inline-flex items-center gap-2 px-5 py-2 rounded-full text-xs font-semibold text-slate-700 bg-white hover:bg-slate-50 active:scale-95 border border-slate-200 shadow-xs transition-all"
+                      >
+                        <FileImage className="w-3.5 h-3.5 text-indigo-600" />
+                        <span>Choose Image File</span>
+                      </label>
+                    </div>
+                  )}
+
+                  {errors.imageUrl && (
+                    <p className="text-[11px] text-rose-600 flex items-center gap-1 pt-1">
+                      <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                      <span>{errors.imageUrl}</span>
+                    </p>
                   )}
                 </div>
 
