@@ -41,14 +41,25 @@ const PERSONAS: { id: UserPersona; label: string }[] = [
 
 const RATING_LABELS = ['Poor', 'Fair', 'Good', 'Very Good', 'Exceptional'];
 
+type FeedbackFormState = {
+  rating: number;
+  category: FeedbackCategory | '';
+  persona: UserPersona | '';
+  feedbackText: string;
+  npsScore?: number;
+  email?: string;
+  imageUrl?: string;
+};
+
 export default function FeedbackPage() {
-  const [formData, setFormData] = useState<FeedbackPayload>({
-    rating: 5,
-    category: 'feature_request',
-    persona: 'software_engineer',
+  const [formData, setFormData] = useState<FeedbackFormState>({
+    rating: 0,
+    category: '',
+    persona: '',
     feedbackText: '',
-    npsScore: 10,
+    npsScore: undefined,
     email: '',
+    imageUrl: undefined,
   });
 
   const [hoverRating, setHoverRating] = useState<number | null>(null);
@@ -116,6 +127,26 @@ export default function FeedbackPage() {
     setLoading(true);
     setErrors({});
 
+    const clientErrors: Record<string, string> = {};
+    if (!formData.rating || formData.rating < 1 || formData.rating > 5) {
+      clientErrors.rating = 'Please provide an overall experience rating.';
+    }
+    if (!formData.category) {
+      clientErrors.category = 'Please select a feedback category.';
+    }
+    if (!formData.persona) {
+      clientErrors.persona = 'Please select your role or persona.';
+    }
+    if (!formData.feedbackText || formData.feedbackText.trim().length < 5) {
+      clientErrors.feedbackText = 'Feedback must be at least 5 characters long.';
+    }
+
+    if (Object.keys(clientErrors).length > 0) {
+      setErrors(clientErrors);
+      setLoading(false);
+      return;
+    }
+
     try {
       const response = await fetch('/api/feedback', {
         method: 'POST',
@@ -133,11 +164,11 @@ export default function FeedbackPage() {
         setImageFile(null);
         setImagePreview(null);
         setFormData({
-          rating: 5,
-          category: 'feature_request',
-          persona: 'software_engineer',
+          rating: 0,
+          category: '',
+          persona: '',
           feedbackText: '',
-          npsScore: 10,
+          npsScore: undefined,
           email: '',
           imageUrl: undefined,
         });
@@ -247,12 +278,22 @@ export default function FeedbackPage() {
                   <div className="flex flex-wrap items-center gap-3">
                     <div className="flex items-center gap-1.5">
                       {[1, 2, 3, 4, 5].map((star) => {
-                        const isFilled = (hoverRating !== null ? hoverRating : formData.rating) >= star;
+                        const currentVal = hoverRating !== null ? hoverRating : formData.rating;
+                        const isFilled = currentVal >= star;
                         return (
                           <button
                             key={star}
                             type="button"
-                            onClick={() => setFormData((prev) => ({ ...prev, rating: star }))}
+                            onClick={() => {
+                              setFormData((prev) => ({ ...prev, rating: star }));
+                              if (errors.rating) {
+                                setErrors((prev) => {
+                                  const next = { ...prev };
+                                  delete next.rating;
+                                  return next;
+                                });
+                              }
+                            }}
                             onMouseEnter={() => setHoverRating(star)}
                             onMouseLeave={() => setHoverRating(null)}
                             className="p-1 rounded-full hover:scale-110 active:scale-95 transition-transform"
@@ -269,9 +310,15 @@ export default function FeedbackPage() {
                         );
                       })}
                     </div>
-                    <span className="text-xs font-semibold px-3 py-1 rounded-full bg-white border border-slate-200 text-slate-700 shadow-xs">
-                      {RATING_LABELS[(hoverRating !== null ? hoverRating : formData.rating) - 1]}
-                    </span>
+                    {((hoverRating !== null ? hoverRating : formData.rating) > 0) ? (
+                      <span className="text-xs font-semibold px-3 py-1 rounded-full bg-amber-50 border border-amber-200 text-amber-900 shadow-xs">
+                        {RATING_LABELS[(hoverRating !== null ? hoverRating : formData.rating) - 1]}
+                      </span>
+                    ) : (
+                      <span className="text-xs font-medium px-3 py-1 rounded-full bg-white border border-slate-200 text-slate-400 shadow-xs">
+                        Select a rating
+                      </span>
+                    )}
                   </div>
                   {errors.rating && (
                     <p className="text-[11px] text-rose-600">{errors.rating}</p>
@@ -291,7 +338,16 @@ export default function FeedbackPage() {
                         <button
                           key={cat.id}
                           type="button"
-                          onClick={() => setFormData((prev) => ({ ...prev, category: cat.id }))}
+                          onClick={() => {
+                            setFormData((prev) => ({ ...prev, category: cat.id }));
+                            if (errors.category) {
+                              setErrors((prev) => {
+                                const next = { ...prev };
+                                delete next.category;
+                                return next;
+                              });
+                            }
+                          }}
                           className={`px-4 py-2 rounded-full text-xs font-semibold transition-all border ${
                             isSelected
                               ? 'bg-indigo-600 text-white border-indigo-600 shadow-md shadow-indigo-600/20 scale-[1.02]'
@@ -321,7 +377,16 @@ export default function FeedbackPage() {
                         <button
                           key={p.id}
                           type="button"
-                          onClick={() => setFormData((prev) => ({ ...prev, persona: p.id }))}
+                          onClick={() => {
+                            setFormData((prev) => ({ ...prev, persona: p.id }));
+                            if (errors.persona) {
+                              setErrors((prev) => {
+                                const next = { ...prev };
+                                delete next.persona;
+                                return next;
+                              });
+                            }
+                          }}
                           className={`px-4 py-2 rounded-full text-xs font-semibold transition-all border ${
                             isSelected
                               ? 'bg-emerald-600 text-white border-emerald-600 shadow-md shadow-emerald-600/20 scale-[1.02]'
@@ -379,8 +444,8 @@ export default function FeedbackPage() {
                       <Award className="w-3.5 h-3.5 text-indigo-600" />
                       <span>5. Likelihood to recommend Fillvyn to a peer?</span>
                     </label>
-                    <span className="text-xs font-bold text-indigo-700">
-                      {formData.npsScore} / 10
+                    <span className={`text-xs font-bold ${formData.npsScore !== undefined ? 'text-indigo-700' : 'text-slate-400'}`}>
+                      {formData.npsScore !== undefined ? `${formData.npsScore} / 10` : 'Optional'}
                     </span>
                   </div>
                   <div className="grid grid-cols-11 gap-1 sm:gap-1.5">
@@ -390,7 +455,12 @@ export default function FeedbackPage() {
                         <button
                           key={score}
                           type="button"
-                          onClick={() => setFormData((prev) => ({ ...prev, npsScore: score }))}
+                          onClick={() =>
+                            setFormData((prev) => ({
+                              ...prev,
+                              npsScore: prev.npsScore === score ? undefined : score,
+                            }))
+                          }
                           className={`py-2 rounded-xl text-xs font-bold transition-all ${
                             isSelected
                               ? 'bg-indigo-600 text-white shadow-sm scale-105'
