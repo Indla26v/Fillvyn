@@ -1,56 +1,27 @@
 'use client';
 
 import React, { useState } from 'react';
-import Image from 'next/image';
-import { LOCAL_SPECS, CLOUD_SPECS } from '../data/mockData';
-import { 
-  Laptop, 
-  Cpu, 
-  HardDrive, 
-  Zap, 
-  ShieldCheck, 
-  Sparkles, 
-  CheckCircle2,
+import { LOCAL_SPECS } from '../data/mockData';
+import {
+  Cpu,
+  HardDrive,
+  Zap,
+  Sparkles,
   Layers,
-  HelpCircle
 } from 'lucide-react';
 
+/** Local vs cloud hardware requirements; rendered inside the Setup Guide's collapsible panel. */
 export default function SpecsGuide() {
   const [activeMode, setActiveMode] = useState<'local' | 'cloud'>('local');
 
   return (
-    <section id="system-specs" className="py-20 md:py-28 bg-white relative overflow-hidden">
-      {/* Background AI Mesh & Luminous Glow */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-90">
-        <Image
-          src="/images/bg-specs.jpg"
-          alt="AI Luminous Hardware Specs Background"
-          fill
-          className="object-cover object-center"
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-white/10 via-transparent to-white/90"></div>
-      </div>
-
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        
-        {/* Section Header */}
-        <div className="text-center max-w-3xl mx-auto mb-12 space-y-4">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-indigo-100 text-indigo-800 text-xs font-bold uppercase tracking-wider">
-            <Laptop className="w-3.5 h-3.5 text-indigo-600" />
-            <span>Hardware & System Compatibility</span>
-          </div>
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
-            Runs on Any Laptop or Workstation
-          </h2>
-          <p className="text-slate-600 text-base sm:text-lg">
-            Choose whether you want 100% private on-device generation with Ollama or zero-footprint cloud execution.
-          </p>
-        </div>
-
+    <div>
         {/* Mode Selector (Pill tabs) */}
         <div className="flex items-center justify-center mb-10 px-2">
           <div className="inline-flex flex-col sm:flex-row p-1.5 bg-white/90 backdrop-blur-sm rounded-2xl sm:rounded-full border border-slate-200 shadow-sm gap-1.5 w-full sm:w-auto">
             <button
+              type="button"
+              aria-pressed={activeMode === 'local'}
               onClick={() => setActiveMode('local')}
               className={`px-6 py-2.5 rounded-xl sm:rounded-full text-xs sm:text-sm font-semibold transition-all flex items-center justify-center gap-2 ${
                 activeMode === 'local'
@@ -63,6 +34,8 @@ export default function SpecsGuide() {
             </button>
 
             <button
+              type="button"
+              aria-pressed={activeMode === 'cloud'}
               onClick={() => setActiveMode('cloud')}
               className={`px-6 py-2.5 rounded-xl sm:rounded-full text-xs sm:text-sm font-semibold transition-all flex items-center justify-center gap-2 ${
                 activeMode === 'cloud'
@@ -177,8 +150,6 @@ export default function SpecsGuide() {
             </div>
           </div>
         )}
-
-      </div>
-    </section>
+    </div>
   );
 }

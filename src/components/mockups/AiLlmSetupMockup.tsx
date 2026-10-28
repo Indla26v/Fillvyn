@@ -1,16 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { 
-  Cpu, 
-  Sparkles, 
-  Cloud, 
-  CheckCircle2, 
-  Terminal, 
-  RefreshCw,
-  Sliders,
-  ShieldCheck
-} from 'lucide-react';
+import { RefreshCw, ShieldCheck } from 'lucide-react';
 
 export default function AiLlmSetupMockup() {
   const [provider, setProvider] = useState<'ollama' | 'gemini' | 'openai' | 'claude'>('ollama');

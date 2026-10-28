@@ -1,4 +1,5 @@
 import React from 'react';
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import Image from 'next/image';
 import Navbar from '@/components/Navbar';
@@ -15,8 +16,9 @@ import {
   Mail,
 } from 'lucide-react';
 
-export const metadata = {
-  title: 'Privacy Policy - Fillvyn AI Forms Auto-Filler',
+export const metadata: Metadata = {
+  alternates: { canonical: '/privacy' },
+  title: 'Privacy Policy',
   description: 'Learn about Fillvyn\'s zero-telemetry architecture, local Ollama execution, and on-device storage security.',
 };
 
@@ -30,9 +32,10 @@ export default function PrivacyPage() {
         {/* Full-page Nanobanana Mesh Background with Luminous Light Gradient Overlay */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-90">
           <Image
-            src="/images/bg-privacy.jpg"
-            alt="Privacy Luminous Mesh Background"
+            src="/images/bg-privacy.webp"
+            alt=""
             fill
+            sizes="100vw"
             priority
             className="object-cover object-center"
           />

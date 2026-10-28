@@ -10,6 +10,7 @@ export interface StoredFeedback extends FeedbackPayload {
   id: string;
   timestamp: string;
   status: 'new' | 'reviewed' | 'starred' | 'archived';
+  hasImage?: boolean; // Set by list queries that omit the image payload itself
   notes?: string;
 }
 
@@ -19,6 +20,9 @@ export interface StoredContact extends ContactPayload {
   status: 'new' | 'in_progress' | 'resolved' | 'archived';
   notes?: string;
 }
+
+export const FEEDBACK_STATUSES: StoredFeedback['status'][] = ['new', 'reviewed', 'starred', 'archived'];
+export const CONTACT_STATUSES: StoredContact['status'][] = ['new', 'in_progress', 'resolved', 'archived'];
 
 export interface FeedbackFilterOptions {
   rating?: number;

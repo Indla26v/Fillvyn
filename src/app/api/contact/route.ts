@@ -1,10 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { guardPublicSubmission } from '@/lib/security/publicFormGuard';
 import { defaultContactService } from '@/lib/contact/contactService';
 import { ContactPayload } from '@/lib/contact/types';
 
 export async function POST(request: NextRequest) {
   try {
     const body = (await request.json()) as Partial<ContactPayload>;
+
+    const blocked = guardPublicSubmission(request, 'contact', body as Record<string, unknown>);
+    if (blocked) return blocked;
 
     const result = await defaultContactService.processInquiry(body);
 

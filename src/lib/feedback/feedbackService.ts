@@ -65,9 +65,9 @@ export class FeedbackValidator implements IFeedbackValidator {
 
     if (payload.imageUrl && payload.imageUrl.trim().length > 0) {
       const trimmedUrl = payload.imageUrl.trim();
+      // Only uploaded images are accepted; remote URLs would let senders track whoever opens the admin portal.
       const isDataUri = /^data:image\/(png|jpeg|jpg|webp|gif);base64,[A-Za-z0-9+/=]+$/i.test(trimmedUrl);
-      const isHttpUrl = /^https?:\/\/.+/i.test(trimmedUrl);
-      if (!isDataUri && !isHttpUrl) {
+      if (!isDataUri) {
         errors.imageUrl = 'Attached image must be a valid PNG, JPEG, WebP, or GIF image.';
       } else if (trimmedUrl.length > 4.5 * 1024 * 1024) {
         errors.imageUrl = 'Attached image size must not exceed 3MB.';

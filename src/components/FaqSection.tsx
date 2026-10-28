@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import Image from 'next/image';
 import { FAQS } from '../data/mockData';
+import { SITE_CONFIG } from '../config/site';
 import { ChevronDown, HelpCircle, Sparkles } from 'lucide-react';
 
 export default function FaqSection() {
@@ -17,9 +18,10 @@ export default function FaqSection() {
       {/* Background AI Mesh & Luminous Glow */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-90">
         <Image
-          src="/images/bg-faq.jpg"
-          alt="AI Luminous FAQ Background"
+          src="/images/bg-faq.webp"
+          alt=""
           fill
+          sizes="100vw"
           className="object-cover object-center"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-white/10 via-transparent to-white/90"></div>
@@ -55,6 +57,10 @@ export default function FaqSection() {
                 }`}
               >
                 <button
+                  type="button"
+                  id={`faq-question-${idx}`}
+                  aria-expanded={isOpen}
+                  aria-controls={`faq-answer-${idx}`}
                   onClick={() => toggleFaq(idx)}
                   className="w-full p-5 sm:p-6 text-left flex items-center justify-between gap-4 transition-colors"
                 >
@@ -65,6 +71,7 @@ export default function FaqSection() {
                     <span>{faq.question}</span>
                   </span>
                   <div
+                    aria-hidden="true"
                     className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 transition-transform duration-200 ${
                       isOpen ? 'bg-indigo-600 text-white rotate-180' : 'bg-slate-100 text-slate-600'
                     }`}
@@ -74,7 +81,12 @@ export default function FaqSection() {
                 </button>
 
                 {isOpen && (
-                  <div className="px-5 pb-5 sm:px-6 sm:pb-6 text-sm text-slate-600 leading-relaxed border-t border-slate-100 pt-3">
+                  <div
+                    id={`faq-answer-${idx}`}
+                    role="region"
+                    aria-labelledby={`faq-question-${idx}`}
+                    className="px-5 pb-5 sm:px-6 sm:pb-6 text-sm text-slate-600 leading-relaxed border-t border-slate-100 pt-3"
+                  >
                     <p>{faq.answer}</p>
                   </div>
                 )}
@@ -87,15 +99,17 @@ export default function FaqSection() {
         <div className="mt-14 p-8 rounded-3xl bg-slate-900/95 backdrop-blur-md text-white text-center space-y-4 shadow-2xl border border-slate-800">
           <h3 className="text-xl sm:text-2xl font-bold">Ready to streamline your form workflows?</h3>
           <p className="text-sm text-slate-300 max-w-xl mx-auto">
-            Install Fillvyn today. Auto-fill Google Forms and Microsoft Forms with 100% private on-device RAG in under 3 minutes.
+            Install Fillvyn and fill your next Google Form or Microsoft Form from your resume. Setup takes about 3 minutes, and with local Ollama nothing leaves your device.
           </p>
           <div className="pt-2">
             <a
-              href="#quickstart"
+              href={SITE_CONFIG.chromeExtensionUrl}
+              target="_blank"
+              rel="noopener noreferrer"
               className="inline-flex items-center gap-2 px-8 py-3.5 rounded-full bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white text-sm font-semibold shadow-lg shadow-indigo-600/30 transition-all"
             >
               <Sparkles className="w-4 h-4" />
-              <span>Get Started Now</span>
+              <span>Add to Chrome, It&apos;s Free</span>
             </a>
           </div>
         </div>

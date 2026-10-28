@@ -23,7 +23,6 @@ import {
   CheckCircle2,
   AlertCircle,
   FolderArchive,
-  HelpCircle,
   ImageIcon,
   X,
   ExternalLink,
@@ -34,7 +33,6 @@ export default function AdminDashboardPage() {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [passkeyInput, setPasskeyInput] = useState<string>('');
   const [authError, setAuthError] = useState<string>('');
-  const [token, setToken] = useState<string>('');
   const [activeTab, setActiveTab] = useState<'feedback' | 'contact'>('feedback');
 
   // Modal lightbox state for feedback image
@@ -59,13 +57,14 @@ export default function AdminDashboardPage() {
   // Copy status
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
-  // Check existing session token on mount
+  // Check for an existing session cookie on mount
   useEffect(() => {
-    const savedToken = localStorage.getItem('fillvyn_admin_token');
-    if (savedToken) {
-      setToken(savedToken);
-      setIsAuthenticated(true);
-    }
+    fetch('/api/admin/auth')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.authenticated) setIsAuthenticated(true);
+      })
+      .catch(() => {});
   }, []);
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -80,9 +79,7 @@ export default function AdminDashboardPage() {
       });
 
       const data = await res.json();
-      if (res.ok && data.success && data.token) {
-        setToken(data.token);
-        localStorage.setItem('fillvyn_admin_token', data.token);
+      if (res.ok && data.success) {
         setIsAuthenticated(true);
         setPasskeyInput('');
       } else {
@@ -93,15 +90,14 @@ export default function AdminDashboardPage() {
     }
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem('fillvyn_admin_token');
-    setToken('');
+  const handleLogout = useCallback(() => {
+    fetch('/api/admin/auth', { method: 'DELETE' }).catch(() => {});
     setIsAuthenticated(false);
-  };
+  }, []);
 
   // Fetch Feedback
   const fetchFeedbacks = useCallback(async () => {
-    if (!token) return;
+    if (!isAuthenticated) return;
     setFeedbackLoading(true);
     try {
       const params = new URLSearchParams();
@@ -111,9 +107,7 @@ export default function AdminDashboardPage() {
       if (statusFilter !== 'all') params.append('status', statusFilter);
       if (searchQuery.trim()) params.append('search', searchQuery.trim());
 
-      const res = await fetch(`/api/admin/feedback?${params.toString()}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await fetch(`/api/admin/feedback?${params.toString()}`);
 
       if (res.status === 401) {
         handleLogout();
@@ -130,11 +124,11 @@ export default function AdminDashboardPage() {
     } finally {
       setFeedbackLoading(false);
     }
-  }, [token, ratingFilter, categoryFilter, personaFilter, statusFilter, searchQuery]);
+  }, [isAuthenticated, handleLogout, ratingFilter, categoryFilter, personaFilter, statusFilter, searchQuery]);
 
   // Fetch Contact Messages
   const fetchContacts = useCallback(async () => {
-    if (!token) return;
+    if (!isAuthenticated) return;
     setContactLoading(true);
     try {
       const params = new URLSearchParams();
@@ -142,9 +136,7 @@ export default function AdminDashboardPage() {
       if (statusFilter !== 'all') params.append('status', statusFilter);
       if (searchQuery.trim()) params.append('search', searchQuery.trim());
 
-      const res = await fetch(`/api/admin/contact?${params.toString()}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await fetch(`/api/admin/contact?${params.toString()}`);
 
       if (res.status === 401) {
         handleLogout();
@@ -160,7 +152,7 @@ export default function AdminDashboardPage() {
     } finally {
       setContactLoading(false);
     }
-  }, [token, categoryFilter, statusFilter, searchQuery]);
+  }, [isAuthenticated, handleLogout, categoryFilter, statusFilter, searchQuery]);
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -177,10 +169,7 @@ export default function AdminDashboardPage() {
     try {
       const res = await fetch('/api/admin/feedback', {
         method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id, status: newStatus }),
       });
 
@@ -198,10 +187,7 @@ export default function AdminDashboardPage() {
     try {
       const res = await fetch('/api/admin/contact', {
         method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id, status: newStatus }),
       });
 
@@ -219,9 +205,8 @@ export default function AdminDashboardPage() {
   const handleDeleteFeedback = async (id: string) => {
     if (!confirm('Are you sure you want to permanently delete this feedback entry?')) return;
     try {
-      const res = await fetch(`/api/admin/feedback?id=${id}`, {
+      const res = await fetch(`/api/admin/feedback?id=${encodeURIComponent(id)}`, {
         method: 'DELETE',
-        headers: { Authorization: `Bearer ${token}` },
       });
 
       if (res.ok) {
@@ -236,9 +221,8 @@ export default function AdminDashboardPage() {
   const handleDeleteContact = async (id: string) => {
     if (!confirm('Are you sure you want to permanently delete this contact inquiry?')) return;
     try {
-      const res = await fetch(`/api/admin/contact?id=${id}`, {
+      const res = await fetch(`/api/admin/contact?id=${encodeURIComponent(id)}`, {
         method: 'DELETE',
-        headers: { Authorization: `Bearer ${token}` },
       });
 
       if (res.ok) {
@@ -249,23 +233,22 @@ export default function AdminDashboardPage() {
     }
   };
 
+  // Quote a CSV cell and neutralise leading = + - @ so spreadsheets don't run it as a formula
+  const csvCell = (value: string | number) => {
+    const text = String(value);
+    const safe = /^[=+\-@\t\r]/.test(text) ? `'${text}` : text;
+    return `"${safe.replace(/"/g, '""')}"`;
+  };
+
   // Export to CSV
   const handleExportCSV = () => {
     if (activeTab === 'feedback') {
       const headers = ['ID', 'Rating', 'Category', 'Persona', 'NPS', 'Email', 'Status', 'Timestamp', 'Feedback'];
-      const rows = feedbacks.map((f) => [
-        f.id,
-        f.rating,
-        f.category,
-        f.persona,
-        f.npsScore ?? '',
-        f.email ?? '',
-        f.status,
-        f.timestamp,
-        `"${f.feedbackText.replace(/"/g, '""')}"`,
-      ]);
-      const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map((e) => e.join(','))].join('\n');
-      const encodedUri = encodeURI(csvContent);
+      const rows = feedbacks.map((f) =>
+        [f.id, f.rating, f.category, f.persona, f.npsScore ?? '', f.email ?? '', f.status, f.timestamp, f.feedbackText].map(csvCell)
+      );
+      const encodedUri =
+        'data:text/csv;charset=utf-8,' + encodeURIComponent([headers.join(','), ...rows.map((e) => e.join(','))].join('\n'));
       const link = document.createElement('a');
       link.setAttribute('href', encodedUri);
       link.setAttribute('download', `fillvyn_feedback_export_${Date.now()}.csv`);
@@ -274,18 +257,11 @@ export default function AdminDashboardPage() {
       document.body.removeChild(link);
     } else {
       const headers = ['ID', 'Name', 'Email', 'Category', 'Subject', 'Status', 'Timestamp', 'Message'];
-      const rows = contacts.map((c) => [
-        c.id,
-        `"${c.name.replace(/"/g, '""')}"`,
-        c.email,
-        c.category,
-        `"${c.subject.replace(/"/g, '""')}"`,
-        c.status,
-        c.timestamp,
-        `"${c.message.replace(/"/g, '""')}"`,
-      ]);
-      const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map((e) => e.join(','))].join('\n');
-      const encodedUri = encodeURI(csvContent);
+      const rows = contacts.map((c) =>
+        [c.id, c.name, c.email, c.category, c.subject, c.status, c.timestamp, c.message].map(csvCell)
+      );
+      const encodedUri =
+        'data:text/csv;charset=utf-8,' + encodeURIComponent([headers.join(','), ...rows.map((e) => e.join(','))].join('\n'));
       const link = document.createElement('a');
       link.setAttribute('href', encodedUri);
       link.setAttribute('download', `fillvyn_contacts_export_${Date.now()}.csv`);
@@ -308,9 +284,10 @@ export default function AdminDashboardPage() {
         {/* Luminous Cyber Mesh Background with Light Gradient Overlay */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-80">
           <Image
-            src="/images/bg-admin.jpg"
-            alt="Admin Luminous Background"
+            src="/images/bg-admin.webp"
+            alt=""
             fill
+            sizes="100vw"
             priority
             className="object-cover object-center"
           />
@@ -384,9 +361,10 @@ export default function AdminDashboardPage() {
       {/* Background Luminous Nanobanana Mesh */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-70 fixed">
         <Image
-          src="/images/bg-admin.jpg"
-          alt="Admin Luminous Background"
+          src="/images/bg-admin.webp"
+          alt=""
           fill
+          sizes="100vw"
           priority
           className="object-cover object-center"
         />

@@ -1,20 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { defaultFeedbackRepository } from '@/lib/storage/store';
 import { adminAuthService } from '@/lib/admin/adminAuth';
+import { FEEDBACK_STATUSES, StoredFeedback } from '@/lib/storage/types';
 
-function isAuthorized(req: NextRequest): boolean {
-  const authHeader = req.headers.get('authorization');
-  if (authHeader && authHeader.startsWith('Bearer ')) {
-    const token = authHeader.substring(7);
-    if (adminAuthService.verifySessionToken(token)) return true;
-  }
-  const passkeyHeader = req.headers.get('x-admin-passkey');
-  if (passkeyHeader && adminAuthService.verifyPasskey(passkeyHeader)) return true;
-  return false;
+// Images are served by a separate endpoint so the list stays small.
+function withImageLink(item: StoredFeedback): StoredFeedback {
+  const { imageUrl, hasImage, ...rest } = item;
+  return {
+    ...rest,
+    imageUrl: imageUrl || hasImage ? `/api/admin/feedback/image?id=${encodeURIComponent(item.id)}` : undefined,
+  };
 }
 
+
 export async function GET(req: NextRequest) {
-  if (!isAuthorized(req)) {
+  if (!adminAuthService.isAuthorized(req)) {
     return NextResponse.json({ success: false, message: 'Unauthorized' }, { status: 401 });
   }
 
@@ -40,7 +40,7 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      data: items,
+      data: items.map(withImageLink),
       kpis: summaryKPIs,
     });
   } catch (err) {
@@ -50,7 +50,7 @@ export async function GET(req: NextRequest) {
 }
 
 export async function PATCH(req: NextRequest) {
-  if (!isAuthorized(req)) {
+  if (!adminAuthService.isAuthorized(req)) {
     return NextResponse.json({ success: false, message: 'Unauthorized' }, { status: 401 });
   }
 
@@ -65,12 +65,16 @@ export async function PATCH(req: NextRequest) {
       );
     }
 
+    if (!FEEDBACK_STATUSES.includes(status)) {
+      return NextResponse.json({ success: false, message: 'Invalid status.' }, { status: 400 });
+    }
+
     const updated = await defaultFeedbackRepository.updateStatus(id, status);
     if (!updated) {
       return NextResponse.json({ success: false, message: 'Feedback not found.' }, { status: 404 });
     }
 
-    return NextResponse.json({ success: true, data: updated });
+    return NextResponse.json({ success: true, data: withImageLink(updated) });
   } catch (err) {
     console.error('Admin feedback PATCH error:', err);
     return NextResponse.json({ success: false, message: 'Internal error' }, { status: 500 });
@@ -78,7 +82,7 @@ export async function PATCH(req: NextRequest) {
 }
 
 export async function DELETE(req: NextRequest) {
-  if (!isAuthorized(req)) {
+  if (!adminAuthService.isAuthorized(req)) {
     return NextResponse.json({ success: false, message: 'Unauthorized' }, { status: 401 });
   }
 

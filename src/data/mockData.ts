@@ -189,7 +189,7 @@ export const FAQS: FaqItem[] = [
   {
     category: 'Privacy & Security',
     question: 'Is my resume or candidate profile sent to external servers?',
-    answer: 'No. When using Ollama Local Mode, 100% of the computation, indexing, and LLM text generation runs offline on your machine. Your API keys (if using Gemini/OpenAI/Claude) are stored in your browser local storage and never routed through any Fillvyn intermediate servers.',
+    answer: 'Not in Ollama Local Mode: indexing and answer generation run entirely on your machine. If you pick a cloud model (Gemini, OpenAI or Claude), the form questions and the relevant parts of your profile are sent straight from your browser to that provider to generate answers. They never pass through Fillvyn servers, and your API keys stay in local storage inside your browser.',
   },
   {
     category: 'RAG & GitHub',

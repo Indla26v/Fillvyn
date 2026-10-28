@@ -1,16 +1,13 @@
 'use client';
 
 import React, { useState } from 'react';
-import { 
-  Sparkles, 
-  UploadCloud, 
-  Github, 
-  FileText, 
-  CheckCircle2, 
-  Trash2, 
-  Database,
-  ArrowRight,
-  RefreshCw
+import {
+  Sparkles,
+  UploadCloud,
+  Github,
+  FileText,
+  CheckCircle2,
+  RefreshCw,
 } from 'lucide-react';
 
 export default function RagKnowledgeBaseMockup() {

@@ -1,20 +1,13 @@
-'use client';
-
 import React from 'react';
 import Image from 'next/image';
-import { 
-  Sparkles, 
-  Cpu, 
-  FileText, 
-  Github, 
-  Lock, 
-  Zap, 
-  Sliders, 
-  Layers, 
-  CheckCircle2, 
-  ShieldCheck, 
+import {
+  Sparkles,
+  Cpu,
+  Lock,
+  Zap,
+  Sliders,
   Database,
-  Binary
+  Binary,
 } from 'lucide-react';
 
 const FEATURES = [
@@ -68,9 +61,10 @@ export default function FeaturesGrid() {
       {/* Background AI Prism & Luminous Glow */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-90">
         <Image
-          src="/images/bg-features.jpg"
-          alt="AI Luminous Features Background"
+          src="/images/bg-features.webp"
+          alt=""
           fill
+          sizes="100vw"
           className="object-cover object-center"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-white/10 via-transparent to-white/90"></div>

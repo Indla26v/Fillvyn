@@ -21,7 +21,8 @@ import {
   X,
   FileImage,
 } from 'lucide-react';
-import { FeedbackCategory, UserPersona, FeedbackPayload } from '@/lib/feedback/types';
+import { FeedbackCategory, UserPersona } from '@/lib/feedback/types';
+import HoneypotField from '@/components/HoneypotField';
 
 const CATEGORIES: { id: FeedbackCategory; label: string }[] = [
   { id: 'feature_request', label: 'Feature Request' },
@@ -63,6 +64,7 @@ export default function FeedbackPage() {
   });
 
   const [hoverRating, setHoverRating] = useState<number | null>(null);
+  const [honeypot, setHoneypot] = useState('');
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [successResult, setSuccessResult] = useState<{
@@ -151,7 +153,7 @@ export default function FeedbackPage() {
       const response = await fetch('/api/feedback', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({ ...formData, website: honeypot }),
       });
 
       const data = await response.json();
@@ -193,9 +195,10 @@ export default function FeedbackPage() {
         {/* Nanobanana Mesh Background with Luminous Light Gradient Overlay */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-90">
           <Image
-            src="/images/bg-feedback.jpg"
-            alt="Feedback Luminous Mesh Background"
+            src="/images/bg-feedback.webp"
+            alt=""
             fill
+            sizes="100vw"
             priority
             className="object-cover object-center"
           />
@@ -261,7 +264,8 @@ export default function FeedbackPage() {
                 </div>
               </div>
             ) : (
-              <form onSubmit={handleSubmit} className="space-y-7">
+              <form onSubmit={handleSubmit} className="relative space-y-7">
+                <HoneypotField value={honeypot} onChange={setHoneypot} />
                 
                 {errors.form && (
                   <div className="p-3.5 rounded-2xl bg-rose-50 border border-rose-200 text-rose-700 text-xs flex items-center gap-2">

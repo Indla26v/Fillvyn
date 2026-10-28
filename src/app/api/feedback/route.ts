@@ -1,10 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { guardPublicSubmission } from '@/lib/security/publicFormGuard';
 import { defaultFeedbackService } from '@/lib/feedback/feedbackService';
 import { FeedbackPayload } from '@/lib/feedback/types';
 
 export async function POST(request: NextRequest) {
   try {
     const body = (await request.json()) as Partial<FeedbackPayload>;
+
+    const blocked = guardPublicSubmission(request, 'feedback', body as Record<string, unknown>);
+    if (blocked) return blocked;
 
     const result = await defaultFeedbackService.submitFeedback(body);
 

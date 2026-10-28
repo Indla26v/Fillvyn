@@ -1,16 +1,15 @@
 'use client';
 
 import React, { useState } from 'react';
-import { 
-  Sparkles, 
-  Save, 
-  User, 
-  GraduationCap, 
-  Briefcase, 
-  Copy, 
-  Plus, 
-  CheckCircle2, 
-  Award
+import {
+  Sparkles,
+  Save,
+  User,
+  GraduationCap,
+  Briefcase,
+  Copy,
+  Plus,
+  Award,
 } from 'lucide-react';
 
 export default function PersonalDetailsMockup() {

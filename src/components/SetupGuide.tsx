@@ -2,19 +2,19 @@
 
 import React, { useState } from 'react';
 import Image from 'next/image';
-import { 
-  Terminal, 
-  Check, 
-  Copy, 
-  Chrome, 
-  Cpu, 
-  Download, 
-  ArrowRight, 
-  CheckCircle2, 
-  Layers,
-  Sparkles
+import {
+  Terminal,
+  Check,
+  Copy,
+  Chrome,
+  Cpu,
+  ArrowRight,
+  CheckCircle2,
+  Sparkles,
+  ChevronDown,
 } from 'lucide-react';
 import { SITE_CONFIG } from '../config/site';
+import SpecsGuide from './SpecsGuide';
 
 export default function SetupGuide() {
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
@@ -56,9 +56,10 @@ export default function SetupGuide() {
       {/* Background AI Mesh & Luminous Glow */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-90">
         <Image
-          src="/images/bg-setup.jpg"
-          alt="AI Luminous Setup Guide Background"
+          src="/images/bg-setup.webp"
+          alt=""
           fill
+          sizes="100vw"
           className="object-cover object-center"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-white/10 via-transparent to-white/90"></div>
@@ -76,7 +77,7 @@ export default function SetupGuide() {
             How to Install & Configure Fillvyn
           </h2>
           <p className="text-slate-600 text-base sm:text-lg">
-            Follow the quick steps below to load the Chrome Extension and connect your free local Ollama AI model.
+            Add the extension from the Chrome Web Store, then optionally connect a free local Ollama model for fully private answers.
           </p>
         </div>
 
@@ -92,7 +93,7 @@ export default function SetupGuide() {
                 </div>
                 <div>
                   <h3 className="text-lg font-bold text-slate-900">Step 1: Install in Chrome</h3>
-                  <p className="text-xs text-slate-500 font-medium">Chrome Web Store / Developer Mode</p>
+                  <p className="text-xs text-slate-600 font-medium">From the Chrome Web Store</p>
                 </div>
               </div>
 
@@ -118,32 +119,32 @@ export default function SetupGuide() {
                 <div className="flex items-start gap-3 p-3 rounded-2xl bg-slate-50 border border-slate-200/80">
                   <span className="w-6 h-6 rounded-full bg-indigo-50 text-indigo-700 font-bold text-xs flex items-center justify-center shrink-0">1</span>
                   <div>
-                    <span className="font-semibold text-slate-800">Open Extension Manager:</span>
-                    <p className="text-slate-600 mt-0.5">Navigate to <code className="bg-white px-1.5 py-0.5 rounded font-mono text-[11px] text-indigo-700 border border-slate-200">chrome://extensions/</code> in Google Chrome, Edge, Brave, or Arc.</p>
+                    <span className="font-semibold text-slate-800">Add to Chrome:</span>
+                    <p className="text-slate-600 mt-0.5">Open the Chrome Web Store page above and click <strong className="text-slate-900">Add to Chrome</strong>. Works in Chrome, Edge, Brave and Arc.</p>
                   </div>
                 </div>
 
                 <div className="flex items-start gap-3 p-3 rounded-2xl bg-slate-50 border border-slate-200/80">
                   <span className="w-6 h-6 rounded-full bg-indigo-50 text-indigo-700 font-bold text-xs flex items-center justify-center shrink-0">2</span>
                   <div>
-                    <span className="font-semibold text-slate-800">Enable Developer Mode:</span>
-                    <p className="text-slate-600 mt-0.5">Toggle the <strong className="text-slate-900">Developer mode</strong> switch in the top-right corner of the page.</p>
+                    <span className="font-semibold text-slate-800">Pin Fillvyn:</span>
+                    <p className="text-slate-600 mt-0.5">Click the puzzle-piece icon in your toolbar and pin Fillvyn so it&apos;s one click away.</p>
                   </div>
                 </div>
 
                 <div className="flex items-start gap-3 p-3 rounded-2xl bg-slate-50 border border-slate-200/80">
                   <span className="w-6 h-6 rounded-full bg-indigo-50 text-indigo-700 font-bold text-xs flex items-center justify-center shrink-0">3</span>
                   <div>
-                    <span className="font-semibold text-slate-800">Load Unpacked Extension:</span>
-                    <p className="text-slate-600 mt-0.5">Click <strong className="text-slate-900">Load unpacked</strong> and select the Fillvyn project directory.</p>
+                    <span className="font-semibold text-slate-800">Add your resume:</span>
+                    <p className="text-slate-600 mt-0.5">Open Fillvyn, upload your resume and (optionally) link your GitHub projects, then pick Ollama or a cloud model.</p>
                   </div>
                 </div>
 
                 <div className="flex items-start gap-3 p-3 rounded-2xl bg-slate-50 border border-slate-200/80">
                   <span className="w-6 h-6 rounded-full bg-indigo-50 text-indigo-700 font-bold text-xs flex items-center justify-center shrink-0">4</span>
                   <div>
-                    <span className="font-semibold text-slate-800">Pin to Toolbar:</span>
-                    <p className="text-slate-600 mt-0.5">Pin the Fillvyn icon to your browser bar and press <code className="bg-white px-1.5 py-0.5 rounded font-mono text-[11px] text-indigo-700 border border-slate-200">Alt + Shift + F</code> on any Google Form!</p>
+                    <span className="font-semibold text-slate-800">Fill a form:</span>
+                    <p className="text-slate-600 mt-0.5">Open any Google Form or Microsoft Form and press <code className="bg-white px-1.5 py-0.5 rounded font-mono text-[11px] text-indigo-700 border border-slate-200">Alt + Shift + F</code>.</p>
                   </div>
                 </div>
               </div>
@@ -242,6 +243,20 @@ export default function SetupGuide() {
           </div>
 
         </div>
+
+        {/* System requirements, collapsed by default to keep the page short */}
+        <details id="system-specs" className="group mt-10 rounded-3xl border border-slate-200 bg-white/95 backdrop-blur-md shadow-sm open:shadow-xl">
+          <summary className="cursor-pointer list-none p-6 sm:p-7 flex items-center justify-between gap-4 [&::-webkit-details-marker]:hidden">
+            <div>
+              <h3 className="text-lg font-bold text-slate-900">System requirements</h3>
+              <p className="text-sm text-slate-600">Hardware needed for local Ollama models, and what cloud mode needs instead.</p>
+            </div>
+            <ChevronDown aria-hidden="true" className="w-5 h-5 text-slate-500 shrink-0 transition-transform group-open:rotate-180" />
+          </summary>
+          <div className="px-4 pb-6 sm:px-7 sm:pb-8">
+            <SpecsGuide />
+          </div>
+        </details>
 
       </div>
     </section>

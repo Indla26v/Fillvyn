@@ -1,23 +1,43 @@
 import type { Metadata } from 'next';
 import { Analytics } from '@vercel/analytics/next';
+import { SITE_CONFIG } from '@/config/site';
 import './globals.css';
 
+const title = 'Fillvyn: AI Autofill for Google Forms & Microsoft Forms';
+
 export const metadata: Metadata = {
-  title: 'Fillvyn — AI Forms Auto-Filler & RAG Assistant',
-  description: 'Smart Chrome Extension for Google Forms and Microsoft Forms. Features Local Offline Ollama RAG, Resume & GitHub README synthesis, and clean numeric formatting.',
+  metadataBase: new URL(SITE_CONFIG.url),
+  title: {
+    default: title,
+    template: '%s | Fillvyn',
+  },
+  description: SITE_CONFIG.description,
   keywords: [
     'Fillvyn',
     'Google Forms Autofill',
     'Microsoft Forms Autofill',
-    'RAG Chrome Extension',
-    'Ollama Local LLM',
     'Job Application Autofill',
-    'Resume RAG Assistant',
+    'Resume Autofill Chrome Extension',
+    'Ollama Local LLM',
+    'RAG Chrome Extension',
     'Form Filler',
   ],
   authors: [{ name: 'Fillvyn Engineering' }],
-  icons: {
-    icon: '/images/logo.png',
+  alternates: {
+    canonical: '/',
+  },
+  openGraph: {
+    type: 'website',
+    url: '/',
+    siteName: SITE_CONFIG.name,
+    title,
+    description: SITE_CONFIG.description,
+    locale: 'en_US',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title,
+    description: SITE_CONFIG.description,
   },
   verification: {
     google: '3mBAlZ_tYvnrHdrO6zU4r0UOGRAP7w4jPIj1KJh0N7I',

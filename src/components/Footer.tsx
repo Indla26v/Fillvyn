@@ -1,8 +1,6 @@
-'use client';
-
 import React from 'react';
 import Image from 'next/image';
-import { Sparkles, Github, ShieldCheck, Terminal, Heart, Chrome } from 'lucide-react';
+import { ShieldCheck, Terminal, Chrome } from 'lucide-react';
 import { SITE_CONFIG } from '../config/site';
 
 export default function Footer() {
@@ -19,6 +17,7 @@ export default function Footer() {
                   src="/images/fillvyn-logo.png"
                   alt="Fillvyn App Logo"
                   fill
+                  sizes="48px"
                   className="object-contain p-0.5"
                 />
               </div>

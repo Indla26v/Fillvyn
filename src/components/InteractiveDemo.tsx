@@ -1,25 +1,16 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Image from 'next/image';
 import { PROFILES } from '../data/mockData';
-import { 
-  Sparkles, 
-  CheckCircle2, 
-  RotateCcw, 
-  Cpu, 
-  FileText, 
-  Github, 
-  Sliders, 
-  ShieldCheck, 
-  Layers, 
-  Zap, 
-  Database,
-  ArrowRight,
-  Check,
-  Code2,
-  Terminal,
-  Activity
+import {
+  Sparkles,
+  CheckCircle2,
+  RotateCcw,
+  FileText,
+  ShieldCheck,
+  Zap,
+  Activity,
 } from 'lucide-react';
 
 import GoogleFormSimulator from './GoogleFormSimulator';
@@ -89,14 +80,6 @@ export default function InteractiveDemo() {
     setCurrentStep(-1);
   };
 
-  const isFieldFilled = (stepIndex: number) => {
-    return filledFieldsCount > stepIndex;
-  };
-
-  const isFieldActive = (stepIndex: number) => {
-    return currentStep === stepIndex;
-  };
-
   const getLatencyLabel = () => {
     switch (selectedProvider) {
       case 'ollama':
@@ -116,9 +99,10 @@ export default function InteractiveDemo() {
       {/* Background AI Mesh & Ambient Luminous Glow */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-90">
         <Image
-          src="/images/bg-demo.jpg"
-          alt="AI Luminous Live Demo Background"
+          src="/images/bg-demo.webp"
+          alt=""
           fill
+          sizes="100vw"
           className="object-cover object-center"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-white/10 via-transparent to-white/90"></div>

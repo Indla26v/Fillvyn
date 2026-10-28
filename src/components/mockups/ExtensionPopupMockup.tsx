@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Sparkles, Settings, ChevronDown, CheckCircle2, Zap } from 'lucide-react';
+import { Sparkles, Settings, ChevronDown, CheckCircle2 } from 'lucide-react';
 
 export default function ExtensionPopupMockup() {
   const [isFilled, setIsFilled] = useState(false);

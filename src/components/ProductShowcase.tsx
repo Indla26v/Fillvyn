@@ -8,13 +8,7 @@ import ExtensionPopupMockup from './mockups/ExtensionPopupMockup';
 import PersonalDetailsMockup from './mockups/PersonalDetailsMockup';
 import RagKnowledgeBaseMockup from './mockups/RagKnowledgeBaseMockup';
 import AiLlmSetupMockup from './mockups/AiLlmSetupMockup';
-import { 
-  CheckCircle2, 
-  Sparkles, 
-  ArrowRight, 
-  Layers, 
-  Eye
-} from 'lucide-react';
+import { CheckCircle2, ArrowRight, Eye } from 'lucide-react';
 import { SITE_CONFIG } from '../config/site';
 
 export default function ProductShowcase() {
@@ -44,9 +38,10 @@ export default function ProductShowcase() {
       {/* Background AI Mesh & Luminous Glow */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-90">
         <Image
-          src="/images/bg-showcase.jpg"
-          alt="AI Luminous Showcase Background"
+          src="/images/bg-showcase.webp"
+          alt=""
           fill
+          sizes="100vw"
           className="object-cover object-center"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-white/10 via-transparent to-white/90"></div>

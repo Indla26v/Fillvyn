@@ -1,20 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { defaultContactRepository } from '@/lib/storage/store';
 import { adminAuthService } from '@/lib/admin/adminAuth';
+import { CONTACT_STATUSES } from '@/lib/storage/types';
 
-function isAuthorized(req: NextRequest): boolean {
-  const authHeader = req.headers.get('authorization');
-  if (authHeader && authHeader.startsWith('Bearer ')) {
-    const token = authHeader.substring(7);
-    if (adminAuthService.verifySessionToken(token)) return true;
-  }
-  const passkeyHeader = req.headers.get('x-admin-passkey');
-  if (passkeyHeader && adminAuthService.verifyPasskey(passkeyHeader)) return true;
-  return false;
-}
 
 export async function GET(req: NextRequest) {
-  if (!isAuthorized(req)) {
+  if (!adminAuthService.isAuthorized(req)) {
     return NextResponse.json({ success: false, message: 'Unauthorized' }, { status: 401 });
   }
 
@@ -41,7 +32,7 @@ export async function GET(req: NextRequest) {
 }
 
 export async function PATCH(req: NextRequest) {
-  if (!isAuthorized(req)) {
+  if (!adminAuthService.isAuthorized(req)) {
     return NextResponse.json({ success: false, message: 'Unauthorized' }, { status: 401 });
   }
 
@@ -54,6 +45,10 @@ export async function PATCH(req: NextRequest) {
         { success: false, message: 'ID and Status are required.' },
         { status: 400 }
       );
+    }
+
+    if (!CONTACT_STATUSES.includes(status)) {
+      return NextResponse.json({ success: false, message: 'Invalid status.' }, { status: 400 });
     }
 
     const updated = await defaultContactRepository.updateStatus(id, status);
@@ -69,7 +64,7 @@ export async function PATCH(req: NextRequest) {
 }
 
 export async function DELETE(req: NextRequest) {
-  if (!isAuthorized(req)) {
+  if (!adminAuthService.isAuthorized(req)) {
     return NextResponse.json({ success: false, message: 'Unauthorized' }, { status: 401 });
   }
 

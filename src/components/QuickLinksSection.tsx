@@ -1,7 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Mail, MessageSquareHeart, ShieldCheck, ArrowRight, Sparkles, MessageSquare } from 'lucide-react';
+import { Mail, MessageSquareHeart, ShieldCheck, ArrowRight, Sparkles } from 'lucide-react';
 
 export default function QuickLinksSection() {
   return (
@@ -9,9 +9,10 @@ export default function QuickLinksSection() {
       {/* Subtle background ambient mesh */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-60">
         <Image
-          src="/images/bg-contact.jpg"
+          src="/images/bg-contact.webp"
           alt="Ambient Light Mesh"
           fill
+          sizes="100vw"
           className="object-cover object-center"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-slate-50/90 via-slate-50/80 to-slate-50/95"></div>

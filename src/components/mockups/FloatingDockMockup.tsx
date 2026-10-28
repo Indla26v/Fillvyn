@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Sparkles, Power, Settings, ChevronDown, FileText, CheckCircle2, Zap } from 'lucide-react';
+import { Sparkles, Power, Settings, ChevronDown, FileText, CheckCircle2 } from 'lucide-react';
 
 export default function FloatingDockMockup() {
   const [isJdOpen, setIsJdOpen] = useState(false);

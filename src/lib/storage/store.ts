@@ -85,16 +85,32 @@ const INITIAL_CONTACT_SEED: StoredContact[] = [
   },
 ];
 
+// Sample records are only for local development; production never shows made-up entries.
+const SEED_SAMPLE_DATA = process.env.NODE_ENV !== 'production';
+
+let memoryStoreWarningShown = false;
+
+function warnIfMemoryStoreInProduction() {
+  if (process.env.NODE_ENV === 'production' && !memoryStoreWarningShown) {
+    memoryStoreWarningShown = true;
+    console.warn(
+      '[Fillvyn] No POSTGRES_URL/DATABASE_URL configured: feedback and contact messages are kept in memory and will be lost when this server instance restarts.'
+    );
+  }
+}
+
 function getFeedbackStore(): StoredFeedback[] {
   if (!global.__fillvyn_feedback_store__) {
-    global.__fillvyn_feedback_store__ = [...INITIAL_FEEDBACK_SEED];
+    warnIfMemoryStoreInProduction();
+    global.__fillvyn_feedback_store__ = SEED_SAMPLE_DATA ? [...INITIAL_FEEDBACK_SEED] : [];
   }
   return global.__fillvyn_feedback_store__;
 }
 
 function getContactStore(): StoredContact[] {
   if (!global.__fillvyn_contact_store__) {
-    global.__fillvyn_contact_store__ = [...INITIAL_CONTACT_SEED];
+    warnIfMemoryStoreInProduction();
+    global.__fillvyn_contact_store__ = SEED_SAMPLE_DATA ? [...INITIAL_CONTACT_SEED] : [];
   }
   return global.__fillvyn_contact_store__;
 }

@@ -21,7 +21,8 @@ import {
   HelpCircle,
   Loader2,
 } from 'lucide-react';
-import { ContactCategory, ContactPayload } from '@/lib/contact/types';
+import { ContactPayload } from '@/lib/contact/types';
+import HoneypotField from '@/components/HoneypotField';
 
 export default function ContactPage() {
   const [formData, setFormData] = useState<ContactPayload>({
@@ -32,6 +33,7 @@ export default function ContactPage() {
     message: '',
   });
 
+  const [honeypot, setHoneypot] = useState('');
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [successResult, setSuccessResult] = useState<{
@@ -69,7 +71,7 @@ export default function ContactPage() {
       const response = await fetch('/api/contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({ ...formData, website: honeypot }),
       });
 
       const data = await response.json();
@@ -107,9 +109,10 @@ export default function ContactPage() {
         {/* Nanobanana Mesh Background with Luminous Light Gradient Overlay */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-90">
           <Image
-            src="/images/bg-contact.jpg"
-            alt="Contact Luminous Mesh Background"
+            src="/images/bg-contact.webp"
+            alt=""
             fill
+            sizes="100vw"
             priority
             className="object-cover object-center"
           />
@@ -275,7 +278,8 @@ export default function ContactPage() {
                     </div>
                   </div>
                 ) : (
-                  <form onSubmit={handleSubmit} className="space-y-5">
+                  <form onSubmit={handleSubmit} className="relative space-y-5">
+                    <HoneypotField value={honeypot} onChange={setHoneypot} />
                     <div className="border-b border-slate-100 pb-4">
                       <h3 className="text-xl font-bold text-slate-900 flex items-center gap-2">
                         <MessageSquare className="w-5 h-5 text-indigo-600" />

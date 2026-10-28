@@ -12,6 +12,12 @@
     scroll-behavior: smooth;
   }
 
+  /* Keep anchor targets clear of the fixed navbar */
+  section[id],
+  details[id] {
+    scroll-margin-top: 5rem;
+  }
+
   body {
     background-color: #ffffff;
     color: #0f172a;

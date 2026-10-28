@@ -1,7 +1,5 @@
-'use client';
-
 import React from 'react';
-import { Check, X, Sparkles, Zap, ShieldCheck } from 'lucide-react';
+import { Check, X, Sparkles, Zap } from 'lucide-react';
 
 const COMPARISON_ROWS = [
   {

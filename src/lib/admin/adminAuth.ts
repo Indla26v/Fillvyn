@@ -1,37 +1,76 @@
 /**
  * Admin Authentication Service (SRP)
- * Manages admin passkey verification and authorization tokens.
+ * Verifies the admin passkey and issues HMAC-signed, expiring session tokens.
+ * The passkey must come from the ADMIN_PASSKEY environment variable; with no
+ * passkey configured, admin access is disabled entirely.
  */
 
-const DEFAULT_ADMIN_PASSKEY = process.env.ADMIN_PASSKEY || 'fillvyn2026';
+import { createHmac, timingSafeEqual } from 'crypto';
+import type { NextRequest } from 'next/server';
+
+export const ADMIN_SESSION_COOKIE = 'fillvyn_admin_session';
+export const ADMIN_SESSION_MAX_AGE_SECONDS = 60 * 60 * 12; // 12 hours
+
+const MIN_PASSKEY_LENGTH = 12;
+
+function safeEqual(a: string, b: string): boolean {
+  const bufA = Buffer.from(a);
+  const bufB = Buffer.from(b);
+  if (bufA.length !== bufB.length) return false;
+  return timingSafeEqual(bufA, bufB);
+}
 
 export class AdminAuthService {
-  private validPasskey = DEFAULT_ADMIN_PASSKEY;
+  private getPasskey(): string | null {
+    const passkey = process.env.ADMIN_PASSKEY?.trim();
+    if (!passkey || passkey.length < MIN_PASSKEY_LENGTH) return null;
+    return passkey;
+  }
+
+  // Signing key is derived from the passkey (or an explicit secret), so rotating
+  // the passkey invalidates every existing session.
+  private getSigningKey(passkey: string): string {
+    return process.env.ADMIN_SESSION_SECRET?.trim() || `fillvyn-admin-session:${passkey}`;
+  }
+
+  private sign(payload: string, passkey: string): string {
+    return createHmac('sha256', this.getSigningKey(passkey)).update(payload).digest('base64url');
+  }
+
+  isConfigured(): boolean {
+    return this.getPasskey() !== null;
+  }
 
   verifyPasskey(passkey: string): boolean {
-    if (!passkey || typeof passkey !== 'string') return false;
-    return passkey.trim() === this.validPasskey;
+    const expected = this.getPasskey();
+    if (!expected || !passkey || typeof passkey !== 'string') return false;
+    return safeEqual(passkey.trim(), expected);
   }
 
   createSessionToken(passkey: string): string | null {
-    if (!this.verifyPasskey(passkey)) return null;
-    const expiry = Date.now() + 1000 * 60 * 60 * 24 * 7; // 7 days
-    const payload = `${this.validPasskey}:${expiry}`;
-    return Buffer.from(payload).toString('base64');
+    const expected = this.getPasskey();
+    if (!expected || !this.verifyPasskey(passkey)) return null;
+    const expiry = Date.now() + ADMIN_SESSION_MAX_AGE_SECONDS * 1000;
+    const payload = Buffer.from(JSON.stringify({ exp: expiry })).toString('base64url');
+    return `${payload}.${this.sign(payload, expected)}`;
   }
 
-  verifySessionToken(token: string): boolean {
-    if (!token) return false;
+  verifySessionToken(token: string | undefined): boolean {
+    const expected = this.getPasskey();
+    if (!expected || !token) return false;
+    const [payload, signature] = token.split('.');
+    if (!payload || !signature) return false;
+    if (!safeEqual(signature, this.sign(payload, expected))) return false;
     try {
-      const decoded = Buffer.from(token, 'base64').toString('utf-8');
-      const [passkey, expiryStr] = decoded.split(':');
-      const expiry = Number(expiryStr);
-      if (passkey !== this.validPasskey) return false;
-      if (isNaN(expiry) || Date.now() > expiry) return false;
-      return true;
+      const { exp } = JSON.parse(Buffer.from(payload, 'base64url').toString('utf-8'));
+      return typeof exp === 'number' && Date.now() < exp;
     } catch {
       return false;
     }
+  }
+
+  isAuthorized(req: NextRequest): boolean {
+    return this.verifySessionToken(req.cookies.get(ADMIN_SESSION_COOKIE)?.value);
   }
 }
 
